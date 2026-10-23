@@ -6,19 +6,9 @@ import secrets
 APP_NAME = "LANist"
 VERSION = "3.0.0"
 
-TOKEN_RE = re.compile(r"^[a-z]+-[a-z]+-[0-9]{2}$")
+TOKEN_RE = re.compile(r"^[a-z]+-[0-9]{2}$")
+OLD_TOKEN_RE = re.compile(r"^[a-z]+-[a-z]+-[0-9]{2}$")
 CUSTOM_TOKEN_RE = re.compile(r"^[A-Za-z0-9._~-]{3,64}$")
-
-ADJECTIVES = (
-    "agile", "amber", "brave", "brisk", "calm", "clever", "coral", "cozy",
-    "crisp", "dapper", "eager", "early", "fuzzy", "gentle", "glad", "golden",
-    "grand", "happy", "hardy", "hazel", "honest", "humble", "icy", "jade",
-    "jolly", "keen", "kind", "lazy", "lemon", "lively", "lucky", "lunar",
-    "mellow", "merry", "mint", "neat", "noble", "olive", "orange", "patient",
-    "peach", "plain", "plucky", "proud", "quiet", "rapid", "rosy", "royal",
-    "rustic", "sandy", "shiny", "silver", "sleepy", "smart", "snowy", "solar",
-    "steady", "sunny", "swift", "tidy", "tiny", "vivid", "warm", "witty",
-)
 
 NOUNS = (
     "acorn", "badger", "bamboo", "beacon", "berry", "bison", "brook", "cabin",
@@ -34,9 +24,8 @@ NOUNS = (
 
 
 def new_token():
-    """Two easy words and two digits, e.g. amber-otter-42."""
-    return "{}-{}-{:02d}".format(
-        secrets.choice(ADJECTIVES),
+    """One short word and two digits, e.g. fox-42."""
+    return "{}-{:02d}".format(
         secrets.choice(NOUNS),
         secrets.randbelow(90) + 10,
     )
@@ -99,6 +88,8 @@ class Config:
 
     def ensure_token(self):
         token = self.data.get("token")
+        if isinstance(token, str) and OLD_TOKEN_RE.match(token):
+            token = None
         if not isinstance(token, str) or not valid_token(token):
             token = new_token()
             self.data["token"] = token

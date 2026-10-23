@@ -6,6 +6,13 @@ the host window works without a separate install.
 - tkinterdnd2 0.6.4 — https://github.com/pmgagne/tkinterdnd2 — MIT License
 - tkdnd 2.10.3 — https://github.com/petasis/tkdnd — Tcl/Tk License
 
+The host window renders the access URL as a QR code with a single-file copy of
+Project Nayuki's QR Code generator. It is vendored so the window works without
+installing anything and without internet access.
+
+- qrcodegen (Python) — https://github.com/nayuki/QR-Code-generator — MIT License
+- File: `lanist/vendor/qrcodegen.py` (about 38 KB)
+
 Space Grotesk is bundled for the browser page title and is served from the
 program itself, so the page works without internet access.
 

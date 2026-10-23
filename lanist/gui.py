@@ -39,6 +39,11 @@ except Exception:
     DND_FILES = None
     TkinterDnD = None
 
+try:
+    from qrcodegen import QrCode
+except Exception:
+    QrCode = None
+
 REFRESH_MS = 2000
 CF_HDROP = 15
 FO_DELETE = 3
@@ -212,6 +217,29 @@ def gradient_image(w, h, colors, master=None):
             to=(x, 0, x + 1, h),
         )
     return img
+
+
+def qr_photo(url, target_px=220, master=None):
+    if QrCode is None:
+        raise RuntimeError("二维码组件没有加载。")
+    qr = QrCode.encode_text(url, QrCode.Ecc.MEDIUM)
+    n = qr.get_size()
+    quiet = 4
+    total = n + quiet * 2
+    rows = []
+    for y in range(total):
+        if quiet <= y < quiet + n:
+            cells = [
+                "#000000" if qr.get_module(x - quiet, y - quiet) else "#ffffff"
+                for x in range(total)
+            ]
+        else:
+            cells = ["#ffffff"] * total
+        rows.append("{" + " ".join(cells) + "}")
+    img = tk.PhotoImage(master=master, width=total, height=total)
+    img.put(" ".join(rows))
+    scale = max(2, px(target_px) // total)
+    return img.zoom(scale) if scale > 1 else img
 
 
 def pick_display_font(root):
@@ -863,6 +891,8 @@ class App:
         self._hover_row = None
         self._rows = {}
         self._tick_job = None
+        self._qr_win = None
+        self._qr_img = None
         self._drop_hot = False
         self._drop_saved_msg = None
         self._drop_leave_job = None
@@ -989,13 +1019,26 @@ class App:
             font=("Microsoft YaHei UI", 8),
         ).pack(side="left", padx=(px(6), 0))
 
+        addr_row = tk.Frame(inside, bg=DARK)
+        addr_row.pack(fill="x")
         tk.Label(
-            inside,
+            addr_row,
             text="访问地址",
             bg=DARK,
             fg=DARK_MUTED,
             font=("Microsoft YaHei UI", 9, "bold"),
-        ).pack(anchor="w")
+        ).pack(side="left")
+        self.qr_btn = RoundButton(
+            addr_row,
+            "二维码",
+            command=self.show_qr,
+            kind="on_dark_ghost",
+            bg=DARK,
+            height=24,
+            fixed_width=76,
+        )
+        self.qr_btn.pack(side="right")
+        self.qr_btn.set_enabled(False)
         self.url_box = UrlBox(inside, 272, self.copy_url, bg=DARK)
         self.url_box.set_url("")
         self.url_box.pack(anchor="w", pady=(px(8), 0))
@@ -1625,6 +1668,8 @@ class App:
         self.server_thread = None
         self.url = ""
         self.url_box.set_url("")
+        self.qr_btn.set_enabled(False)
+        self._close_qr()
         self._set_status("idle", "未启动")
         self.action_btn.set_button(
             text="启动服务", kind="on_dark", icon="\ue768"
@@ -1636,11 +1681,13 @@ class App:
         if self.server is None or not self.ips:
             self.url = ""
             self.url_box.set_url("")
+            self.qr_btn.set_enabled(False)
             return
         self.url = "http://{}:{}/{}/".format(
             self.ips[self.ip_index], self.port, self.token
         )
         self.url_box.set_url(self.url)
+        self.qr_btn.set_enabled(QrCode is not None)
 
     def _cycle_ip(self):
         if len(self.ips) < 2:
@@ -1656,6 +1703,77 @@ class App:
         self.root.clipboard_append(self.url)
         self.root.update()
         self.set_message("链接已复制。")
+
+    def show_qr(self):
+        if not self.url:
+            messagebox.showinfo("二维码", "先启动服务，再显示二维码。", parent=self.root)
+            return
+        if self._qr_win is not None and self._qr_win.winfo_exists():
+            self._qr_win.lift()
+            return
+        try:
+            self._qr_img = qr_photo(self.url, master=self.root)
+        except Exception as e:
+            messagebox.showerror("二维码", str(e), parent=self.root)
+            return
+        win = tk.Toplevel(self.root)
+        self._qr_win = win
+        win.title("扫码打开 LANist")
+        win.configure(bg=CARD)
+        win.transient(self.root)
+        win.resizable(False, False)
+        win.protocol("WM_DELETE_WINDOW", self._close_qr)
+        body = tk.Frame(win, bg=CARD)
+        body.pack(padx=px(22), pady=px(20))
+        tk.Label(body, image=self._qr_img, bg=CARD, bd=0).pack()
+        tk.Label(
+            body,
+            text=self.url,
+            bg=CARD,
+            fg=TEXT,
+            font=("Consolas", 9),
+            wraplength=px(320),
+            justify="center",
+        ).pack(pady=(px(13), px(4)))
+        tk.Label(
+            body,
+            text="用手机相机扫码打开；同一局域网内有效",
+            bg=CARD,
+            fg=SOFT,
+            font=("Microsoft YaHei UI", 9),
+        ).pack()
+        RoundButton(
+            body,
+            "关闭",
+            command=self._close_qr,
+            kind="secondary",
+            bg=CARD,
+            height=32,
+            fixed_width=110,
+        ).pack(pady=(px(16), 0))
+        win.bind("<Escape>", lambda _e: self._close_qr())
+        win.update_idletasks()
+        x = self.root.winfo_rootx() + (self.root.winfo_width() - win.winfo_width()) // 2
+        y = self.root.winfo_rooty() + (self.root.winfo_height() - win.winfo_height()) // 2
+        win.geometry("+%d+%d" % (max(0, x), max(0, y)))
+        try:
+            win.grab_set()
+        except tk.TclError:
+            pass
+
+    def _close_qr(self):
+        win = self._qr_win
+        self._qr_win = None
+        if win is not None:
+            try:
+                win.grab_release()
+            except Exception:
+                pass
+            try:
+                win.destroy()
+            except Exception:
+                pass
+        self._qr_img = None
 
     def open_share(self):
         try:
@@ -1778,6 +1896,7 @@ class App:
         self.set_message(f"已移到回收站 {len(paths)} 个文件。")
 
     def on_close(self):
+        self._close_qr()
         if self._tick_job is not None:
             try:
                 self.root.after_cancel(self._tick_job)

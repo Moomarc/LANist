@@ -25,6 +25,13 @@ class GuiTest(unittest.TestCase):
                 root.update()
                 self.assertIsNotNone(app.server)
                 self.assertIn("/amber-otter-42/", app.url)
+                app.show_qr()
+                root.update()
+                self.assertIsNotNone(app._qr_win)
+                self.assertTrue(app._qr_win.winfo_exists())
+                app._close_qr()
+                root.update()
+                self.assertIsNone(app._qr_win)
                 self.assertEqual(
                     app.tree.item(app.tree.get_children()[0], "values")[0],
                     "hello.txt",

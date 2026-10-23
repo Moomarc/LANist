@@ -1,3 +1,4 @@
+import json
 import os
 import tempfile
 import unittest
@@ -11,6 +12,23 @@ class TokenTest(unittest.TestCase):
             token = new_token()
             self.assertRegex(token, TOKEN_RE)
             self.assertTrue(valid_token(token))
+            self.assertLessEqual(len(token), 12)
+
+    def test_two_word_token_still_valid(self):
+        self.assertTrue(valid_token("amber-otter-42"))
+        self.assertTrue(valid_token("fox-42"))
+        self.assertFalse(valid_token("a"))
+        self.assertFalse(valid_token("中文"))
+
+    def test_old_generated_token_rotates_once(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = os.path.join(folder, "config.json")
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump({"token": "amber-otter-42"}, f)
+            token = Config(path).ensure_token()
+            self.assertRegex(token, TOKEN_RE)
+            self.assertNotEqual(token, "amber-otter-42")
+            self.assertEqual(Config(path).ensure_token(), token)
 
     def test_token_persists(self):
         with tempfile.TemporaryDirectory() as folder:
