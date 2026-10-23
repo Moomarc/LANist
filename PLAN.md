@@ -14,6 +14,7 @@
 - 源码优先，不装 PyInstaller。2026-10-24 起在 `LANist/` 建本地 git 仓库，只做本地提交，不设远端、不推公网，除非用户另行说明。
 - 2026-10-24：用户要求把程序打包成 exe 并放到 `release/`，默认用户电脑已有 Python。采用 C# win-exe 轻量启动器（约 22 KB），用 Windows 自带 .NET Framework 的 `csc.exe` 编译；依次寻找 `pyw`、`pythonw`、`py`、`python` 启动 `lanist`。不装 PyInstaller、不内置 Python、不改环境变量。`LANist.exe` 必须与 `lanist` 目录同级。
 - 2026-10-24：二维码不放网页、放在主机窗口：点“访问地址”右边的“二维码”弹窗显示整条 URL，手机相机直接扫。用户明确“没法把 URL 复制到另一台机器”，扫码取代手输。采用 Project Nayuki `qrcodegen.py`（单文件，MIT，39,349 字节）放进 `lanist/vendor/`，不再引入 `segno`。
+- 2026-10-24：图标重做为“模块 L”（用户从四版候选中选定）：深墨色圆角底，三个圆角方块排成 L，两白一蓝紫渐变。方块间距由候选图的 38 调到 62，使 16 px 下仍有约 1 px 分隔。资产为 `lanist/assets/icon.png`（256）与 `icon.ico`（16–256 共 8 档，PNG 编码）；exe、标题栏、窗口 header 与空状态共用这一套。
 - 2026-10-24：网页标题与拖拽框按用户要求缩小约 20%；桌面 wordmark 为 `clamp(45px, 8.4vw, 74px)`，拖拽区 `min-height: 142px`；手机 wordmark 为 `clamp(42px, 12vw, 58px)`，拖拽区 `min-height: 131px`。
 - 1.0 的 `lanfile.py` 不修改；2.0 封存，3.0 只复制代码，不回改 2.0。
 
@@ -28,6 +29,7 @@ lanist/
   cli.py        python -m lanist
   web/index.html  浏览器页面（单文件，无构建步骤）
   web/fonts/    Space Grotesk 标题字体（离线内嵌，SIL OFL）
+  assets/       icon.png（256）与 icon.ico（16–256）
   vendor/       tkinterdnd2 + tkdnd（仅 Windows x64）、qrcodegen.py（单文件 MIT）
 tools/          launcher.cs（C# 启动器）与 build-release.cmd
 release/        LANist.exe + lanist/ + 文档；不纳入 git
@@ -107,6 +109,8 @@ tests/          unittest
 - [x] exe 双击启动：出现“LANist · 局域网传文件”窗口，关窗后窗口与 Python 子进程退出、端口释放
 - [x] exe 无窗口模式：`release\LANist.exe --no-gui --host 127.0.0.1 --port 8015 --token ...` 后 curl 返回 200
 - [x] 窗口二维码：150% 缩放下截图，“二维码”按钮在“访问地址”右侧，弹窗显示二维码与 `http://192.168.71.81:8000/fox-42/`
+- [x] 新图标：ICO 8 档（16–256）可解析；exe 关联图标、窗口标题栏、header 40 px、空状态 64 px 均显示“模块 L”
+- [x] 16 px 图标放大检查：三块之间仍能分开，L 形轮廓可辨
 - [ ] 真机相机扫码打开未验证（只验证了窗口里的二维码渲染；等用户用手机扫）
 - [x] 真实手机打开页面：用户回报界面验证成功（未记录手机系统与浏览器）
 - [ ] 真机手机上传与下载未验证（390×844 为浏览器触屏仿真，只证明布局与文案）
@@ -128,4 +132,5 @@ tests/          unittest
 - 2026-10-24：网页标题与拖拽框缩小约 20%；手机端适配（触屏文案、42 px 按钮、整行点击、面包屑横滑、安全区、页脚拆行）；新增 `release/LANist.exe` 轻量启动器与 `tools/build-release.cmd`；全量 36/36 通过。
 - 2026-10-24：修复窗口左栏按钮右侧圆角被裁切：左栏卡片内边距由 14 改为 12，按钮与输入框宽度 272 正好等于可用宽度（150% 下此前 408 被压到 402）。真机手机访问成功（用户回报）。
 - 2026-10-24：按用户要求缩短口令并加二维码：口令改为“单词 + 两位数字”，旧两词口令启动时自动轮换；窗口“访问地址”右侧加“二维码”按钮，弹窗显示整条 URL。全量 39/39 通过，150% 窗口截图确认弹窗与按钮位置。
+- 2026-10-24：重做程序图标为“模块 L”，替换 `icon.png` / `icon.ico` 并重建 release；窗口截图确认标题栏、header、空状态均为新图。真实启动同时完成旧口令迁移（本机配置由 `amber-otter-42` 变为 `cabin-77`）。全量 39/39。
 - 待办：真机相机扫码、公司机真机访问、真实拖放、100%/125% 缩放、小于最小宽度的屏幕。
