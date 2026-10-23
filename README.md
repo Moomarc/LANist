@@ -33,6 +33,21 @@ Windows 也可以双击 `LANist.cmd`。窗口打开后点“启动服务”，�
 
 第一次运行会生成类似 `amber-otter-42` 的口令，并保存在 `%APPDATA%\LANist\config.json`。链接里已经带口令，复制链接即可。
 
+### 用 release 里的 exe 启动
+
+`release/LANist.exe` 是一个轻量启动器，本身不带 Python 运行时，要求本机已装 Python 3.9 或更新版本（安装时保留 py launcher 与 tcl/tk）。双击它会依次尝试 `pyw`、`pythonw`、`py`、`python` 启动 `lanist`。
+
+`LANist.exe` 必须和同目录下的 `lanist` 文件夹放在一起，整个 `release` 目录可以一起移动或复制。没有找到 Python 时会弹出提示，不会静默失败。
+
+### 手机访问
+
+1. 主机开好服务，确认手机和主机连在同一个 Wi‑Fi（或同一局域网）。
+2. 把窗口里带口令的链接发到手机，用浏览器打开，不需要装 App，也不需要单独登录。
+3. 点上传区选择文件；上传固定落在共享目录根目录。点文件夹进入下一层，点文件下载。
+4. 手机页面按触屏做过适配：按钮加大到 42px、整行可点、面包屑横向滑动、隐藏时间列、适配刘海与底部安全区。
+
+如果手机打不开：先确认是同一个网络；再看路由器是否开了“访客网络”或“AP 隔离/客户端隔离”（开了会挡住设备互访）；最后检查主机的防火墙是否允许 Python 在专用网络接收入站连接。不要用关闭防火墙来“解决”问题。
+
 ### 只在终端里跑
 
 ```bash
@@ -75,7 +90,17 @@ lanist/          服务端、窗口、CLI、网页模板
   gui.py         Tk 窗口
   web/           浏览器页面；fonts/ 内置标题字体
 tests/           单元、HTTP、CLI 与窗口冒烟测试
+tools/           exe 启动器源码与打包脚本
+release/         打包产物（LANist.exe + lanist/ + 文档），不纳入 git
 ```
+
+打包：
+
+```bash
+tools\build-release.cmd
+```
+
+脚本用 Windows 自带的 .NET Framework `csc.exe` 编译启动器，不下载任何东西；`release/` 每次重建。
 
 ## 许可
 

@@ -1,6 +1,7 @@
 __pycache__/
 *.py[cod]
 _dev/
+release/
 .venv/
 build/
 dist/

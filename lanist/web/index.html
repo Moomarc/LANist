@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f5f7fb">
 <title>LANist · 局域网传文件</title>
 <link rel="icon" href="__FAVICON__">
@@ -47,6 +47,7 @@
   ::selection { background: rgba(37, 99, 235, .16); }
   body {
     min-height: 100vh;
+    min-height: 100dvh;
     background:
       radial-gradient(1100px 620px at 50% -24%, rgba(37, 99, 235, .15) 0%, transparent 62%),
       radial-gradient(780px 440px at 98% -12%, rgba(124, 58, 237, .11) 0%, transparent 58%),
@@ -57,6 +58,7 @@
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    -webkit-tap-highlight-color: transparent;
   }
   .wrap { max-width: 940px; margin: 0 auto; padding: 26px 22px 46px; }
   .card {
@@ -70,16 +72,16 @@
   /* hero */
   .hero {
     position: relative;
-    padding: 8px 4px 30px;
+    padding: 6px 4px 24px;
     animation: rise .55s cubic-bezier(.2, .7, .3, 1) both;
   }
   .hero::after {
     content: "";
     position: absolute;
-    right: -30px;
-    top: 34px;
-    width: 300px;
-    height: 300px;
+    right: -24px;
+    top: 27px;
+    width: 240px;
+    height: 240px;
     pointer-events: none;
     border-radius: 50%;
     background: radial-gradient(circle,
@@ -87,7 +89,7 @@
       transparent 40% 56%, rgba(124, 58, 237, .08) 57% 58%, transparent 59%);
     opacity: .9;
   }
-  .bar { position: relative; z-index: 1; display: flex; align-items: center; gap: 12px; margin-bottom: 26px; }
+  .bar { position: relative; z-index: 1; display: flex; align-items: center; gap: 12px; margin-bottom: 21px; }
   .mark { display: flex; }
   .mark svg { width: 32px; height: 32px; display: block; filter: drop-shadow(0 6px 14px rgba(37, 99, 235, .3)); }
   .kicker {
@@ -136,7 +138,7 @@
     margin: 0;
     font-family: var(--display);
     font-weight: 700;
-    font-size: clamp(56px, 10.5vw, 92px);
+    font-size: clamp(45px, 8.4vw, 74px);
     line-height: .9;
     letter-spacing: -.055em;
     color: transparent;
@@ -159,16 +161,16 @@
   .lede {
     position: relative;
     z-index: 1;
-    margin: 16px 0 0;
+    margin: 13px 0 0;
     color: var(--muted);
-    font-size: 15px;
+    font-size: 14.5px;
     letter-spacing: .01em;
   }
   .lede .sep { margin: 0 9px; color: #c2cad6; }
   .meta {
     position: relative;
     z-index: 1;
-    margin: 10px 0 0;
+    margin: 8px 0 0;
     font-family: var(--display);
     font-size: 11px;
     font-weight: 500;
@@ -188,16 +190,16 @@
   }
 
   /* upload */
-  .upload-card { padding: 12px; margin-bottom: 16px; animation: rise .55s .06s cubic-bezier(.2, .7, .3, 1) both; }
+  .upload-card { padding: 10px; margin-bottom: 14px; animation: rise .55s .06s cubic-bezier(.2, .7, .3, 1) both; }
   .drop {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 3px;
-    min-height: 178px;
-    padding: 24px 20px;
+    gap: 2px;
+    min-height: 142px;
+    padding: 19px 16px;
     border: 1.5px dashed var(--line-strong);
     border-radius: 18px;
     background:
@@ -225,9 +227,9 @@
   .drop-ico {
     display: grid;
     place-items: center;
-    width: 48px; height: 48px;
-    margin-bottom: 8px;
-    border-radius: 15px;
+    width: 40px; height: 40px;
+    margin-bottom: 6px;
+    border-radius: 13px;
     background: linear-gradient(140deg, #3b82f6 0%, #2563eb 48%, #6d28d9 100%);
     color: #fff;
     box-shadow:
@@ -236,10 +238,11 @@
     transition: transform .22s cubic-bezier(.2, .7, .3, 1);
   }
   .drop:hover .drop-ico { transform: translateY(-2px); }
-  .drop-ico svg { width: 23px; height: 23px; }
+  .drop-ico svg { width: 19px; height: 19px; }
   .drop.dragover .drop-ico { animation: bob .9s ease-in-out infinite; }
-  .drop-title { font-size: 16px; font-weight: 700; letter-spacing: -.01em; }
-  .drop-sub { color: var(--muted); font-size: 12.8px; }
+  .drop-title { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+  .drop-sub { color: var(--muted); font-size: 12.3px; }
+  .drop-title-touch, .drop-sub-touch { display: none; }
   .drop-note { color: var(--soft); font-size: 11.5px; margin-top: 2px; letter-spacing: .01em; }
   .drop-note b { color: var(--muted); font-weight: 600; }
   .sr-only {
@@ -505,21 +508,62 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   @keyframes stripe { to { background-position: 20px 0; } }
   @media (max-width: 640px) {
-    .wrap { padding: 16px 12px 30px; }
-    .hero { padding: 6px 2px 22px; }
+    .wrap {
+      padding:
+        14px max(12px, env(safe-area-inset-left))
+        calc(24px + env(safe-area-inset-bottom))
+        max(12px, env(safe-area-inset-right));
+    }
+    .hero { padding: 4px 1px 18px; }
     .hero::after { display: none; }
-    .bar { margin-bottom: 20px; gap: 9px; }
+    .bar { margin-bottom: 16px; gap: 9px; }
     .kicker { letter-spacing: .14em; font-size: 10px; }
-    .wordmark { font-size: clamp(52px, 15vw, 72px); }
-    .lede { font-size: 14px; }
-    .upload-card { padding: 9px; }
-    .drop { min-height: 164px; padding: 22px 14px; }
-    .files { padding: 16px 12px 8px; }
-    .files-head { flex-direction: column; gap: 10px; }
+    .mark svg { width: 30px; height: 30px; }
+    .wordmark { font-size: clamp(42px, 12vw, 58px); }
+    .lede { margin-top: 10px; font-size: 13.5px; }
+    .meta { font-size: 10px; }
+    .upload-card { padding: 8px; margin-bottom: 12px; }
+    .drop { min-height: 131px; padding: 17px 12px; border-radius: 16px; }
+    .drop-ico { width: 38px; height: 38px; margin-bottom: 5px; }
+    .drop-ico svg { width: 18px; height: 18px; }
+    .drop-note { font-size: 11px; }
+    .files { padding: 14px 10px 6px; }
+    .files-head { flex-direction: column; gap: 9px; margin-bottom: 4px; }
+    h2 { font-size: 17px; }
+    .files-sub { font-size: 11.5px; }
+    .files-tools { width: 100%; justify-content: space-between; }
+    .icon-btn { width: 40px; height: 40px; border-radius: 12px; }
+    .crumbs {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      font-size: 12px;
+      padding-bottom: 2px;
+    }
+    .crumbs::-webkit-scrollbar { display: none; }
+    .crumbs a { padding: 6px 8px; }
+    td { padding: 10px 8px; }
+    th { padding: 7px 8px; }
     td.time, th.time { display: none; }
-    th.size { width: 76px; }
-    .chip-name { max-width: 180px; }
-    .crumbs { font-size: 12px; }
+    th.size, td.size { width: 68px; }
+    td.size { font-size: 12px; }
+    td.act { width: 54px; }
+    .badge { width: 34px; height: 34px; }
+    .chip-name { max-width: 160px; }
+    .foot { margin-top: 18px; padding-top: 14px; font-size: 11px; line-height: 1.7; }
+    .foot-line { display: block; }
+    .toast { bottom: calc(20px + env(safe-area-inset-bottom)); }
+  }
+  @media (hover: none), (pointer: coarse) {
+    .drop-title-pointer, .drop-sub-pointer { display: none; }
+    .drop-title-touch, .drop-sub-touch { display: inline; }
+    .drop:hover .drop-ico { transform: none; }
+    .icon-btn { width: 42px; height: 42px; }
+    td.act { width: 58px; }
+    td.act .icon-btn { width: 42px; height: 42px; opacity: 1; }
+    tbody tr:hover { background: transparent; }
+    tbody tr.row-folder:hover { background: transparent; }
+    tbody tr:active { background: #f3f7fd; }
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -542,10 +586,12 @@
   <main>
     <section class="upload-card card">
       <form id="uploadForm" method="post" action="u" enctype="multipart/form-data">
-        <label class="drop" id="drop" for="fileInput" role="button" tabindex="0" aria-label="拖入文件或点击选择文件">
+        <label class="drop" id="drop" for="fileInput" role="button" tabindex="0" aria-label="选择文件上传，支持多选">
           <span class="drop-ico"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M5 20h14"/></svg></span>
-          <span class="drop-title">把文件拖到这里</span>
-          <span class="drop-sub">或点击选择文件 · 支持多选</span>
+          <span class="drop-title drop-title-pointer">把文件拖到这里</span>
+          <span class="drop-title drop-title-touch">选择要上传的文件</span>
+          <span class="drop-sub drop-sub-pointer">或点击选择文件 · 支持多选</span>
+          <span class="drop-sub drop-sub-touch">点这里选择文件 · 支持多选</span>
           <span class="drop-note">上传位置：<b>共享目录根目录</b> · 同名文件自动加序号</span>
           <input class="sr-only" id="fileInput" type="file" name="file" multiple>
         </label>
@@ -573,7 +619,7 @@
     </section>
   </main>
 
-  <footer class="foot">LANist · 只在局域网内传输，不经过外网；主机退出后本页就打不开了。</footer>
+  <footer class="foot"><span class="foot-line">LANist · 只在局域网内传输，不经过外网；</span><span class="foot-line">主机退出后本页就打不开了。</span></footer>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
@@ -598,6 +644,13 @@
   var toastTimer = 0;
   if (list) {
     setTimeout(function () { list.classList.add('no-anim'); }, 1200);
+    list.addEventListener('click', function (e) {
+      if (!window.matchMedia || !window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
+      if (e.target.closest('a, button')) return;
+      var row = e.target.closest('tr');
+      var link = row && row.querySelector('td.cell-name a');
+      if (link) window.location.assign(link.href);
+    });
   }
 
   function toast(msg, kind) {
