@@ -22,7 +22,7 @@ class CliTest(unittest.TestCase):
             text=True,
             encoding="utf-8",
         ).strip()
-        self.assertEqual(out, "LANist 3.0.0")
+        self.assertEqual(out, "LANist 1.0.0")
 
     def test_invalid_token_exits(self):
         result = subprocess.run(

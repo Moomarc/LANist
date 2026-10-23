@@ -938,13 +938,6 @@ class App:
             fg=TEXT,
             font=(self.display_font, 24),
         ).pack(side="left")
-        tk.Label(
-            title_row,
-            text="3.0",
-            bg=BG,
-            fg=SOFT,
-            font=("Segoe UI", 9),
-        ).pack(side="left", anchor="n", padx=(px(7), 0), pady=(px(5), 0))
         self.status_pill = StatusPill(header, bg=BG)
         self.status_pill.pack(side="right")
 
