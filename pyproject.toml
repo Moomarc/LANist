@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lanist"
+version = "3.0.0"
+description = "A small LAN file transfer app with a browser UI"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.9"
+authors = [{ name = "LANist contributors" }]
+keywords = ["lan", "file-transfer", "http", "tkinter"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Win32 (MS Windows)",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX",
+  "Programming Language :: Python :: 3",
+  "Topic :: Communications :: File Sharing",
+]
+
+[project.scripts]
+lanist = "lanist.cli:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["lanist*"]
+
+[tool.setuptools.package-data]
+lanist = [
+  "web/*.html",
+  "web/fonts/*",
+  "assets/*",
+  "vendor/__init__.py",
+  "vendor/tkinterdnd2/*.py",
+  "vendor/tkinterdnd2/tkdnd/win-x64/*",
+  "vendor/tkinterdnd2/tkdnd/win-x64-tcl9/*",
+]
