@@ -203,22 +203,6 @@ def ellipsize(font, text, max_width):
     return text[:lo] + "…"
 
 
-def gradient_image(w, h, colors, master=None):
-    w, h = max(1, int(w)), max(1, int(h))
-    img = tk.PhotoImage(master=master, width=w, height=h)
-    span = max(1, len(colors) - 1)
-    for x in range(w):
-        t = x / max(1, w - 1) * span
-        i = min(int(t), span - 1)
-        f = t - i
-        c1, c2 = _hex_rgb(colors[i]), _hex_rgb(colors[i + 1])
-        img.put(
-            _rgb_hex(*(a + (b - a) * f for a, b in zip(c1, c2))),
-            to=(x, 0, x + 1, h),
-        )
-    return img
-
-
 def qr_photo(url, target_px=220, master=None):
     if QrCode is None:
         raise RuntimeError("二维码组件没有加载。")
@@ -245,10 +229,9 @@ def qr_photo(url, target_px=220, master=None):
 def pick_display_font(root):
     families = set(tkfont.families(root))
     for name in (
-        "Bahnschrift SemiBold",
-        "Segoe UI Variable Display Semibold",
-        "Segoe UI Variable Display",
+        "Segoe UI Variable Display Semib",
         "Segoe UI Semibold",
+        "Segoe UI",
     ):
         if name in families:
             return name
@@ -638,23 +621,22 @@ class StatusPill(tk.Canvas):
         self._layout()
 
 
-class Chip(tk.Canvas):
-    def __init__(self, parent, text, bg=BG, fg=ACCENT, fill="#e9f0ff"):
-        self._bg = bg
-        self._font = tkfont.Font(
-            family="Microsoft YaHei UI", size=8, weight="bold"
-        )
-        self._h = px(19)
-        self._text = text
-        w = self._font.measure(text) + px(14)
+class TokenChip(tk.Canvas):
+    def __init__(self, parent, text, bg=DARK):
+        self._font = tkfont.Font(family="Consolas", size=10)
+        shown = ellipsize(self._font, text, px(118))
+        w = self._font.measure(shown) + px(18)
+        h = px(24)
         super().__init__(
-            parent, width=w, height=self._h, bg=bg, highlightthickness=0, bd=0
+            parent, width=w, height=h, bg=bg, highlightthickness=0, bd=0
         )
         self._img = rounded_image(
-            w, self._h, self._h // 2, fill, None, bg, 1, master=self
+            w, h, px(7), "#1b2946", None, bg, 1, master=self
         )
         self.create_image(0, 0, anchor="nw", image=self._img)
-        self.create_text(w / 2, self._h / 2, text=text, font=self._font, fill=fg)
+        self.create_text(
+            w / 2, h / 2, text=shown, font=self._font, fill="#dbe6f7"
+        )
 
 
 class UrlBox(tk.Canvas):
@@ -727,7 +709,12 @@ class UrlBox(tk.Canvas):
 
     def set_url(self, url):
         self._url = url
-        text = url or "启动后显示"
+        shown = url
+        if shown.startswith("http://"):
+            shown = shown[len("http://"):]
+        if shown.endswith("/"):
+            shown = shown[:-1]
+        text = shown or "启动后显示"
         avail = (
             self._width
             - self._pad * 2
@@ -887,7 +874,6 @@ class App:
         self.icon_img = None
         self.icon_head = None
         self.icon_empty = None
-        self.grad_bar = None
         self._hover_row = None
         self._rows = {}
         self._tick_job = None
@@ -936,17 +922,15 @@ class App:
         outer = tk.Frame(self.root, bg=BG)
         outer.pack(fill="both", expand=True, padx=px(20), pady=px(18))
 
-        header = tk.Frame(outer, bg=BG, height=px(62))
+        header = tk.Frame(outer, bg=BG, height=px(56))
         header.pack(fill="x")
         header.pack_propagate(False)
         if self.icon_head is not None:
             tk.Label(header, image=self.icon_head, bg=BG).pack(
                 side="left", padx=(0, px(13))
             )
-        titles = tk.Frame(header, bg=BG)
-        titles.pack(side="left")
-        title_row = tk.Frame(titles, bg=BG)
-        title_row.pack(anchor="w")
+        title_row = tk.Frame(header, bg=BG)
+        title_row.pack(side="left")
         tk.Label(
             title_row,
             text="LANist",
@@ -954,30 +938,13 @@ class App:
             fg=TEXT,
             font=(self.display_font, 24),
         ).pack(side="left")
-        self.brand_dot = tk.Label(
-            title_row,
-            text="●",
-            bg=BG,
-            fg=ACCENT,
-            font=("Segoe UI", 6),
-        )
-        self.brand_dot.pack(side="left", padx=(px(4), 0), pady=(px(13), 0))
-        Chip(title_row, "3.0", bg=BG).pack(
-            side="left", padx=(px(8), 0), pady=(px(7), 0)
-        )
-        self.grad_bar = gradient_image(
-            px(72), px(3), ("#2563eb", "#7c3aed", "#0e7490"), master=self.root
-        )
-        tk.Label(titles, image=self.grad_bar, bg=BG, bd=0).pack(
-            anchor="w", pady=(px(2), 0)
-        )
         tk.Label(
-            titles,
-            text="局域网传文件 · 同一网络内用浏览器打开",
+            title_row,
+            text="3.0",
             bg=BG,
-            fg=MUTED,
-            font=("Microsoft YaHei UI", 9),
-        ).pack(anchor="w", pady=(px(1), 0))
+            fg=SOFT,
+            font=("Segoe UI", 9),
+        ).pack(side="left", anchor="n", padx=(px(7), 0), pady=(px(5), 0))
         self.status_pill = StatusPill(header, bg=BG)
         self.status_pill.pack(side="right")
 
@@ -1043,7 +1010,7 @@ class App:
         self.url_box.set_url("")
         self.url_box.pack(anchor="w", pady=(px(8), 0))
         token_row = tk.Frame(inside, bg=DARK)
-        token_row.pack(fill="x", pady=(px(8), 0))
+        token_row.pack(fill="x", pady=(px(10), 0))
         tk.Label(
             token_row,
             text="口令",
@@ -1051,13 +1018,9 @@ class App:
             fg=DARK_MUTED,
             font=("Microsoft YaHei UI", 9),
         ).pack(side="left")
-        tk.Label(
-            token_row,
-            text=self.token,
-            bg=DARK,
-            fg="#b9c7de",
-            font=("Consolas", 10),
-        ).pack(side="left", padx=(px(7), 0))
+        TokenChip(token_row, self.token, bg=DARK).pack(
+            side="left", padx=(px(8), 0)
+        )
         if len(self.ips) > 1:
             self.alt_btn = RoundButton(
                 token_row,
@@ -1071,15 +1034,6 @@ class App:
             self.alt_btn.pack(side="right")
         else:
             self.alt_btn = None
-        tk.Label(
-            inside,
-            text="同一局域网内用浏览器打开",
-            bg=DARK,
-            fg=DARK_MUTED,
-            font=("Microsoft YaHei UI", 9),
-            wraplength=px(272),
-            justify="left",
-        ).pack(anchor="w", pady=(px(6), 0))
         self.action_btn = RoundButton(
             inside,
             "启动服务",
@@ -1090,9 +1044,9 @@ class App:
             height=36,
             fixed_width=272,
         )
-        self.action_btn.pack(anchor="w", pady=(px(12), 0))
+        self.action_btn.pack(anchor="w", pady=(px(16), 0))
         tk.Frame(inside, bg=DARK_LINE, height=1).pack(
-            fill="x", pady=(px(16), px(14))
+            fill="x", pady=(px(20), px(16))
         )
         tk.Label(
             inside,
@@ -1123,7 +1077,7 @@ class App:
         self.open_btn.pack(anchor="w", pady=(px(10), 0))
 
         tk.Frame(inside, bg=DARK_LINE, height=1).pack(
-            fill="x", pady=(px(16), px(12))
+            fill="x", pady=(px(20), px(14))
         )
         tk.Label(
             inside,
@@ -1334,25 +1288,20 @@ class App:
         self.tree.pack(side="left", fill="both", expand=True)
         self.scroll.pack(side="right", fill="y")
 
-        self.empty = tk.Frame(tree_frame, bg=CARD)
-        if self.icon_empty is not None:
-            tk.Label(self.empty, image=self.icon_empty, bg=CARD).pack()
+        self.empty = tk.Canvas(
+            tree_frame, bg=CARD, highlightthickness=0, bd=0
+        )
         self.empty_title = tk.StringVar(value="共享目录还是空的")
         self.empty_hint = tk.StringVar(value="把文件拖到这里，或点「上传文件」")
-        tk.Label(
-            self.empty,
-            textvariable=self.empty_title,
-            bg=CARD,
-            fg=TEXT,
-            font=("Microsoft YaHei UI", 13, "bold"),
-        ).pack(pady=(px(8), px(2)))
-        tk.Label(
-            self.empty,
-            textvariable=self.empty_hint,
-            bg=CARD,
-            fg=SOFT,
-            font=("Microsoft YaHei UI", 9),
-        ).pack()
+        self._empty_title_font = tkfont.Font(
+            root=self.root, family="Microsoft YaHei UI", size=13, weight="bold"
+        )
+        self._empty_hint_font = tkfont.Font(
+            root=self.root, family="Microsoft YaHei UI", size=9
+        )
+        self.empty.bind("<Configure>", self._draw_empty)
+        self.empty_title.trace_add("write", lambda *_: self._draw_empty())
+        self.empty_hint.trace_add("write", lambda *_: self._draw_empty())
         self.root.after_idle(self._fit_columns)
         self.root.bind("<F5>", lambda _e: self.refresh_files(force=True))
 
@@ -1502,11 +1451,47 @@ class App:
         self.tree.selection_set(self.tree.get_children())
         return "break"
 
+    def _draw_empty(self, _event=None):
+        canvas = self.empty
+        width, height = canvas.winfo_width(), canvas.winfo_height()
+        if width < 2 or height < 2:
+            return
+        canvas.delete("empty")
+        title_h = self._empty_title_font.metrics("linespace")
+        hint_h = self._empty_hint_font.metrics("linespace")
+        icon_h = self.icon_empty.height() if self.icon_empty is not None else 0
+        gap = px(10) if icon_h else 0
+        block = icon_h + gap + title_h + px(3) + hint_h
+        top = height * 0.55 - block / 2
+        if self.icon_empty is not None:
+            canvas.create_image(
+                width / 2, top + icon_h / 2, image=self.icon_empty, tags="empty"
+            )
+            top += icon_h + gap
+        canvas.create_text(
+            width / 2,
+            top,
+            text=self.empty_title.get(),
+            anchor="n",
+            font=self._empty_title_font,
+            fill=TEXT,
+            tags="empty",
+        )
+        canvas.create_text(
+            width / 2,
+            top + title_h + px(3),
+            text=self.empty_hint.get(),
+            anchor="n",
+            font=self._empty_hint_font,
+            fill=MUTED,
+            tags="empty",
+        )
+
     def _toggle_empty(self, empty):
         if empty:
             self.scroll.pack_forget()
-            self.empty.place(relx=0.5, rely=0.55, anchor="center")
-            self.empty.lift()
+            self.empty.place(x=0, y=0, relwidth=1, relheight=1)
+            self._draw_empty()
         else:
             self.empty.place_forget()
             self.root.after_idle(self._sync_scroll)
@@ -1910,7 +1895,6 @@ class App:
         self.icon_img = None
         self.icon_head = None
         self.icon_empty = None
-        self.grad_bar = None
         self.root.destroy()
 
 
@@ -1923,15 +1907,7 @@ def _create_root():
     return tk.Tk()
 
 
-def run(share, token, port=0, host="0.0.0.0"):
-    try:
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("LANist.App")
-    except Exception:
-        pass
-    root = _create_root()
-    global SCALE
-    SCALE = root.winfo_fpixels("1i") / 96.0
-    root.configure(bg=BG)
+def apply_styles(root):
     style = ttk.Style(root)
     try:
         style.theme_use("clam")
@@ -1961,6 +1937,9 @@ def run(share, token, port=0, host="0.0.0.0"):
         foreground=MUTED,
         relief="flat",
         borderwidth=0,
+        lightcolor=CARD,
+        darkcolor=CARD,
+        bordercolor=CARD,
         padding=(px(8), px(7)),
         font=("Microsoft YaHei UI", 9, "bold"),
     )
@@ -1968,6 +1947,42 @@ def run(share, token, port=0, host="0.0.0.0"):
         "App.Treeview.Heading",
         background=[("active", CARD), ("pressed", CARD)],
     )
+    try:
+        style.layout(
+            "App.Treeview",
+            [("Treeview.treearea", {"sticky": "nswe"})],
+        )
+        style.layout(
+            "App.Treeview.Heading",
+            [
+                (
+                    "Treeheading.cell",
+                    {
+                        "sticky": "nswe",
+                        "children": [
+                            (
+                                "Treeheading.padding",
+                                {
+                                    "sticky": "nswe",
+                                    "children": [
+                                        (
+                                            "Treeheading.image",
+                                            {"side": "right", "sticky": ""},
+                                        ),
+                                        (
+                                            "Treeheading.text",
+                                            {"sticky": "we"},
+                                        ),
+                                    ],
+                                },
+                            )
+                        ],
+                    },
+                )
+            ],
+        )
+    except tk.TclError:
+        pass
     style.configure(
         "App.Vertical.TScrollbar",
         background="#c9d5e6",
@@ -2002,6 +2017,18 @@ def run(share, token, port=0, host="0.0.0.0"):
         )
     except tk.TclError:
         pass
+
+
+def run(share, token, port=0, host="0.0.0.0"):
+    try:
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("LANist.App")
+    except Exception:
+        pass
+    root = _create_root()
+    global SCALE
+    SCALE = root.winfo_fpixels("1i") / 96.0
+    root.configure(bg=BG)
+    apply_styles(root)
     try:
         App(root, share=share, token=token, port=port, host=host)
         root.mainloop()
