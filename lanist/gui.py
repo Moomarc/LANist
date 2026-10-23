@@ -969,7 +969,7 @@ class App:
         )
         service.pack(fill="both", expand=True)
         inside = tk.Frame(service.body, bg=DARK)
-        inside.pack(fill="both", expand=True, padx=px(14), pady=px(14))
+        inside.pack(fill="both", expand=True, padx=px(12), pady=px(14))
 
         sfoot = tk.Frame(inside, bg=DARK)
         sfoot.pack(side="bottom", fill="x")
