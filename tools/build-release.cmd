@@ -30,4 +30,6 @@ copy /y LICENSE release\ >nul
 if errorlevel 1 exit /b 1
 copy /y THIRD_PARTY.md release\ >nul
 if errorlevel 1 exit /b 1
+copy /y screenshot.png release\ >nul
+if errorlevel 1 exit /b 1
 echo Built release\LANist.exe
