@@ -35,11 +35,13 @@ Windows 也可以双击 `LANist.cmd`。窗口打开后点“启动服务”，�
 
 第一次运行会生成类似 `fox-42` 的口令，并保存在 `%APPDATA%\LANist\config.json`。链接里已经带口令；窗口里点“二维码”，手机扫码就能打开。
 
-### 用 release 里的 exe 启动
+### 用 exe 启动
 
-`release/LANist.exe` 是一个轻量启动器，本身不带 Python 运行时，要求本机已装 Python 3.9 或更新版本（安装时保留 py launcher 与 tcl/tk）。双击它会依次尝试 `pyw`、`pythonw`、`py`、`python` 启动 `lanist`。
+从 GitHub Releases 下载发布包，解压后双击其中的 `LANist.exe`。从源码运行时，先执行 `tools\build-release.cmd`，产物在 `release\`。
 
-`LANist.exe` 必须和同目录下的 `lanist` 文件夹放在一起，整个 `release` 目录可以一起移动或复制。没有找到 Python 时会弹出提示，不会静默失败。
+`LANist.exe` 是一个轻量启动器，本身不带 Python 运行时，要求本机已装 Python 3.9 或更新版本（安装时保留 py launcher 与 tcl/tk）。双击它会依次尝试 `pyw`、`pythonw`、`py`、`python` 启动 `lanist`。
+
+`LANist.exe` 必须和同目录下的 `lanist` 文件夹放在一起，整个文件夹可以一起移动或复制。没有找到 Python 时会弹出提示，不会静默失败。
 
 ### 手机访问
 
