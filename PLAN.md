@@ -116,6 +116,7 @@ tests/          unittest
 - [x] 标题与拖拽框缩小后 1100px 桌面截图：层级、面包屑、文件夹行完整
 - [x] exe 双击启动：出现“LANist · 局域网传文件”窗口，关窗后窗口与 Python 子进程退出、端口释放
 - [x] exe 无窗口模式：`release\LANist.exe --no-gui --host 127.0.0.1 --port 8015 --token ...` 后 curl 返回 200
+- [x] GitHub 发布包 `dist/LANist-windows-x64.zip`：解压到中文路径后双击的 `LANist.exe --no-gui` 返回 200，`Server: LANist`，页面含新 logo 与深色样式；包内无 `__pycache__`、`PLAN.md` 或版本文件
 - [x] 窗口二维码：150% 缩放下截图，“二维码”按钮在“访问地址”右侧，弹窗显示二维码与 `http://192.168.71.81:8000/fox-42/`
 - [x] 新图标：ICO 8 档（16–256）可解析；exe 关联图标、窗口标题栏、header 40 px、空状态 64 px 均显示“模块 L”
 - [x] 16 px 图标放大检查：三块之间仍能分开，L 形轮廓可辨
@@ -145,4 +146,5 @@ tests/          unittest
 - 2026-10-24：空状态提示行此前在真实窗口里不显示：Tk 9 在 placed Frame 底部边界的那行 label 首发不绘制，任何重配置才补画。改为 Canvas 自绘整块空状态；同时访问地址显示去掉协议与末尾斜杠，150% 下不再截断。重建 release，真机 exe 截图确认。全量 39/39。
 - 2026-10-24：对外版本按用户要求当作新项目，并彻底不暴露版本号：删除 `config.VERSION`、CLI `--version` 与启动横幅里的版本、HTTP `Server` 头里的版本与 Python 版本；`pyproject.toml` 的版本字段留 `0.0.0` 作为打包元数据，界面与终端都看不到。窗口与网页都不显示版本号，README 不再提“3.0”。PLAN 内部仍按 3.0 开发线记录历史。
 - 2026-10-24：网页换新“模块 L”logo（favicon 同源）并补整套深色模式：标题渐变、状态胶囊、卡片、上传区、表格、类型徽章、空状态、错误页与 toast 均按 `prefers-color-scheme` 切换；CDP 浅色/深色 × 桌面/手机共 6 张截图检查，无横向溢出。版本号彻底移除（代码、CLI、`Server` 头）。全量 39/39。
+- 2026-10-24：生成 GitHub 发布包 `dist/LANist-windows-x64.zip`（`LANist.exe` + `lanist/` + 三份文档），解压到中文路径后实测启动；README 区分发布包与源码两种 exe 路径；`tools/build-release.cmd` 在 release 被占用或复制失败时立即停止，不再误报 Built。
 - 待办：真机相机扫码、公司机真机访问、真实拖放、100%/125% 缩放、小于最小宽度的屏幕；手机“强制深色”浏览器需真机确认是否尊重站点配色。
