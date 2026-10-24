@@ -15,15 +15,6 @@ def _python():
 
 
 class CliTest(unittest.TestCase):
-    def test_version(self):
-        out = subprocess.check_output(
-            [_python(), "-m", "lanist", "--version"],
-            cwd=ROOT,
-            text=True,
-            encoding="utf-8",
-        ).strip()
-        self.assertEqual(out, "LANist 1.0.0")
-
     def test_invalid_token_exits(self):
         result = subprocess.run(
             [_python(), "-m", "lanist", "--token", "../bad"],

@@ -4,7 +4,6 @@ import re
 import secrets
 
 APP_NAME = "LANist"
-VERSION = "1.0.0"
 
 TOKEN_RE = re.compile(r"^[a-z]+-[0-9]{2}$")
 OLD_TOKEN_RE = re.compile(r"^[a-z]+-[a-z]+-[0-9]{2}$")

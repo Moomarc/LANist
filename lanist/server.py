@@ -13,13 +13,13 @@ from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, quote, unquote, unquote_to_bytes, urlsplit
 
-from .config import VERSION, valid_token
+from .config import valid_token
 from .store import Store, split_rel
 
 CHUNK = 64 * 1024
 WEB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
 
-LOGO_SVG = """<svg viewBox="0 0 64 64" width="64" height="64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse"><stop stop-color="#2563eb"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#lg)"/><path d="M23 39V17M23 17l-7 7M23 17l7 7" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M41 25v22M41 47l-7-7M41 47l7-7" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>"""
+LOGO_SVG = """<svg viewBox="0 0 1024 1024" width="64" height="64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="lanistTile" x1="0" y1="0" x2="0" y2="1024" gradientUnits="userSpaceOnUse"><stop stop-color="#1B2947"/><stop offset="1" stop-color="#09101E"/></linearGradient><linearGradient id="lanistModule" x1="543" y1="543" x2="747" y2="747" gradientUnits="userSpaceOnUse"><stop stop-color="#568CFF"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient></defs><rect width="1024" height="1024" rx="228" fill="url(#lanistTile)"/><rect x="277" y="277" width="204" height="204" rx="58" fill="#F7F9FC"/><rect x="277" y="543" width="204" height="204" rx="58" fill="#F7F9FC"/><rect x="543" y="543" width="204" height="204" rx="58" fill="url(#lanistModule)"/></svg>"""
 FAVICON = "data:image/svg+xml;base64," + base64.b64encode(
     LOGO_SVG.encode("utf-8")
 ).decode("ascii")
@@ -43,13 +43,20 @@ CSP = (
 ERROR_PAGE = """<!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
 <title>__TITLE__ · LANist</title>
 <style>
+:root{color-scheme:light dark}
 body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f3f6fb;color:#0f172a;
 font-family:"Segoe UI","Microsoft YaHei UI",system-ui,sans-serif}
 .box{max-width:420px;padding:34px 30px;border:1px solid #e7ecf4;border-radius:20px;background:#fff;
 box-shadow:0 22px 48px -24px rgba(15,23,42,.22);text-align:center}
 h1{margin:0 0 8px;font-size:19px}p{margin:0;color:#5c6879;font-size:14px;line-height:1.7}
+@media (prefers-color-scheme:dark){
+body{background:#0a0f18;color:#e6ecf7}
+.box{background:#101827;border-color:#1e2b40;box-shadow:0 22px 48px -24px rgba(0,0,0,.9)}
+p{color:#9fb0c7}
+}
 </style></head><body><div class="box"><h1>__TITLE__</h1><p>__MESSAGE__</p></div></body></html>"""
 
 BADGE_CATS = {
@@ -406,8 +413,11 @@ class LANistServer(ThreadingHTTPServer):
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "LANist/" + VERSION
+    server_version = "LANist"
     protocol_version = "HTTP/1.0"
+
+    def version_string(self):
+        return self.server_version
 
     def log_message(self, fmt, *args):
         pass

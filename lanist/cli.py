@@ -3,7 +3,7 @@ import os
 import sys
 
 from . import server as srv
-from .config import Config, VERSION, default_share_dir, valid_token
+from .config import Config, default_share_dir, valid_token
 
 
 def _port(value):
@@ -46,9 +46,6 @@ def build_parser():
     parser.add_argument(
         "--no-gui", action="store_true", help="只在终端里跑，不打开窗口"
     )
-    parser.add_argument(
-        "--version", action="version", version="LANist {}".format(VERSION)
-    )
     return parser
 
 
@@ -65,7 +62,7 @@ def run_headless(share, token, host, port):
         urls = ["http://127.0.0.1:{}/{}/".format(actual_port, token)]
     else:
         urls = srv.urls_for(actual_port, token)
-    print("LANist {}".format(VERSION))
+    print("LANist")
     print("共享目录：{}".format(share))
     print("访问口令：{}".format(token))
     if urls:

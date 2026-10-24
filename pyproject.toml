@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lanist"
-version = "3.0.0"
+version = "0.0.0"  # 对外不显示版本号；PEP 621 仍要求此字段
 description = "A small LAN file transfer app with a browser UI"
 readme = "README.md"
 license = { text = "MIT" }

@@ -86,6 +86,11 @@ class ServerTest(unittest.TestCase):
         )
         return status, headers, data
 
+    def test_server_header_has_no_version(self):
+        status, headers, body = self.request("GET", "/{}/".format(self.token))
+        self.assertEqual(status, 200)
+        self.assertEqual(headers.get("server"), "LANist")
+
     def test_listing_and_auth(self):
         status, headers, body = self.request("GET", "/{}/".format(self.token))
         self.assertEqual(status, 200)
